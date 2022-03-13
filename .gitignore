@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Large files
+*.csv
+*.tsv
+/data/
+*.pth
+*.gz
+*.ttf
+/convolutional_neural_network/data/
+*.pb

@@ -25,7 +25,7 @@ class Agent:
 
     def __init__(self):
         self.number_of_games = 0
-        self.epsilon = 0. # randomness
+        self.epsilon = 0 # randomness
         self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft() if exceeds MAX_MEMORY
         self.model = Linear_QNet(11, 256, 3)
@@ -91,7 +91,7 @@ class Agent:
 
     def get_action(self, state):
         # random moves: tradeoff exploration / exploitation
-        self.epsilon = 80 - self.number_of_games
+        self.epsilon = 100 - self.number_of_games
         final_move = [0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 2)
