@@ -109,7 +109,7 @@ def main():
 
 
     # arrange data in ascending y-order
-    idx_sorted = np.argsort(data[:, 1])
+    idx_sorted = np.lexsort((data[:, 0], data[:, 1])) #np.argsort(data[:, 1])
     data = np.ascontiguousarray(data[idx_sorted])
     print(data)
 
@@ -180,6 +180,11 @@ def main():
         line_segments.append([x_values, y_values])
 
     plt.plot(data[:, 0], data[:, 1], '.')
+
+    # annotate points
+    for i, pt in enumerate(data):
+        plt.annotate(str(i), (pt[0], pt[1]))
+
     for line_segment in line_segments:
         x_values = line_segment[0]
         y_values = line_segment[1]
