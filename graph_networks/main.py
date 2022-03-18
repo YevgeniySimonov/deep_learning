@@ -5,6 +5,45 @@ from math import atan2, sqrt, acos, degrees, atan
 from scipy.spatial import cKDTree
 import time
 
+from typing import List, Tuple, Dict
+from sklearn.linear_model import RANSACRegressor
+
+def ransac_regressor(coords: List, line_orientation = 'vertical') -> Tuple:
+
+    if len(coords) > 1:
+
+        data = np.array(coords, dtype=np.float_)
+        
+        if line_orientation == 'horizontal':
+            X = data[:, 0]
+            y = data[:, 1]
+        else:
+            X = data[:, 1]
+            y = data[:, 0]
+
+        # ransac regressor
+        ransac = RANSACRegressor()
+        ransac.fit(X[:, np.newaxis], y)
+
+        # inlier_mask = ransac.inlier_mask_
+        # X_ransac = X[inlier_mask]
+        # y_ransac = y[inlier_mask]
+
+        # estimate slope and intercept
+        X_end_points = np.array([[X.min()], [X.max()]], dtype=np.float_)
+        Y_end_points = ransac.predict(X_end_points)
+
+        slope = (Y_end_points[1] - Y_end_points[0]) / (X_end_points[1] - X_end_points[0])
+        intercept = Y_end_points[0] - slope * X_end_points[0]
+
+        slope = slope[0]
+        intercept = intercept[0]
+
+        return slope, intercept
+
+    return None, None
+
+
 def main():
 
     data = np.array([(1002.0, 533.0), (1109.0, 532.5), (994.25, 657.5), (1230.5, 665.0), (965.0, 616.0), (920.0, 700.5), 
@@ -133,11 +172,13 @@ def main():
     # assuming each row has no more than 15 bounding boxes
     start = time.perf_counter()
 
+    Kelem_search = 25
+
     idx_count = 0
     neigh_idxs = []
-    tree = cKDTree(data[0:30])
+    tree = cKDTree(data[0:Kelem_search])
     last_idx = len(data)
-    idx_array = np.arange(30)
+    idx_array = np.arange(Kelem_search)
     K = len(idx_array)
     idx_set = set()
     for i, p in enumerate(data):
@@ -149,7 +190,7 @@ def main():
             idx_count = 0
             K = len(idx_array)
         idx_count += 1
-        dists, idxs = tree.query(p, k = 25)
+        dists, idxs = tree.query(p, k = Kelem_search)
         for j in idxs[1:]:
             # print(idx_array)
             # print(j)
@@ -159,9 +200,9 @@ def main():
             if abs(p[0] - q[0]) < 1e-4:
                 continue
             if p[0] < q[0]:
-                theta_deg = degrees( atan( abs( ( q[1] - p[1] ) / ( q[0] - p[0] ) ) ) )
+                theta_deg = degrees( atan( ( q[1] - p[1] ) / ( q[0] - p[0] ) ) )
             else:
-                theta_deg = degrees( atan( abs( ( p[1] - q[1] ) / ( p[0] - q[0] ) ) ) )
+                theta_deg = degrees( atan( ( p[1] - q[1] ) / ( p[0] - q[0] ) ) )
             # print(theta_deg)
             if -8 < theta_deg < 8:
                 neigh_idxs.append((i, idx))     
