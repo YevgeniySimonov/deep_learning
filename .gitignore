@@ -137,3 +137,6 @@ dmypy.json
 *.ttf
 /convolutional_neural_network/data/
 *.pb
+*.jpeg
+*.png
+*.jpg
