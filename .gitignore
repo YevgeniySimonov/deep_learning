@@ -142,3 +142,4 @@ dmypy.json
 *.jpg
 *.zip
 *.pkl
+*.bin
